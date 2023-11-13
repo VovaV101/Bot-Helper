@@ -1,4 +1,5 @@
 from typing import Tuple, List
+from pathlib import Path
 
 from prompt_toolkit import prompt
 
@@ -8,6 +9,7 @@ from bot_helper.bot_helper.record import RecordAlreadyExistsException, Record
 from bot_helper.bot_helper.save_data.save_on_disk import SaveAddressBookOnDisk
 from bot_helper.bot_helper.utils.command_prompts import get_nested_completer
 from bot_helper.bot_helper.utils.format_str import FormatStr
+from bot_helper.bot_helper.sort_files import FileOrganizer
 
 records = dict()
 contacts = AddressBook(data_save_tool=SaveAddressBookOnDisk(address="address_book.json"))
@@ -290,6 +292,12 @@ def upcoming_birthdays(*args) -> str:
     result_str += "--------------------------+++-----------------------------------\n"
     return result_str
 
+@input_error
+def get_user_paths() -> Tuple[Path, Path]:
+    source_path = input("Enter the path to the source folder: ")
+    destination_path = source_path
+    destination_path = source_path
+    return Path(source_path), Path(destination_path)
 
 @input_error
 def unknown() -> str:
@@ -352,23 +360,23 @@ COMMANDS = {
     "add address": add_address,
     "add email": add_email,
     "upcoming birthdays": upcoming_birthdays,
+    "sort files": get_user_paths,
 }
 
 
 def main() -> None:
-    """
-    Method is responsible for creating an endless loop where all additional function is
-    calling. The loop can be stopped by passing the appropriate commands (close, exit,
-    good bye).
-    :return: None.
-    """
     while True:
         cli_input = prompt(message="Type a command>>> ",
                            completer=get_nested_completer(),
                            bottom_toolbar="Run 'help' command for getting additional "
                                           "information about bot commands")
         func_name, func, func_args = parse_cli_command(cli_input)
-        print(func(*func_args))
+        if func_name.lower() == "sort files":
+            source_path, destination_path = get_user_paths()
+            file_organizer = FileOrganizer(source_folder=source_path, destination_folder=destination_path)
+            file_organizer.organize_files()
+        else:
+            print(func(*func_args))
         if func_name in ("good bye", "close", "exit"):
             break
 
