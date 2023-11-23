@@ -12,6 +12,11 @@ class InformationPresenter(ABC):
     def present_information(self, data_type, data):
         pass
 
+class UserInterface(ABC):
+    @abstractmethod
+    def show_information(self, information):
+        pass
+
 class JSONDataLoader(DataLoader):
     def load_data(self, file_path):
         try:
@@ -20,12 +25,6 @@ class JSONDataLoader(DataLoader):
                 return data
         except (FileNotFoundError, json.JSONDecodeError):
             return None
-
-class UserInterface(ABC):
-    @abstractmethod
-    def show_information(self, information):
-        pass
-
 class ConsoleUserInterface(UserInterface):
     def show_information(self, information):
         print(information)
